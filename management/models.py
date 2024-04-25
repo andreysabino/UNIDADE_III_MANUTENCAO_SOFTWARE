@@ -45,3 +45,16 @@ class Ticket(BaseModel):
     def __str__(self) -> str:
         return f'{self.id} | {self.model} | {self.license_plate} | {self.value}'
 
+class Reservation(models.Model):
+    parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE, null=True, default=None)
+    checkin = models.DateTimeField()
+    checkout = models.DateTimeField()
+    quantHoras = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "Reservation"
+        verbose_name_plural = "Reservation"
+
+    def _str_(self) -> str:
+        return f'RESERVA DA VAGA: {self.parking_space} DAS {self.checkin} ÀS {self.checkout}'
+

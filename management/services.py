@@ -1,5 +1,5 @@
 from datetime import datetime
-from management.models import Parking, ParkingSpace, Ticket
+from management.models import Parking, ParkingSpace, Ticket, Reservation
 
 class ParkingService:
 
@@ -55,3 +55,13 @@ class TicketService:
         ticket.value = total_time.total_seconds() / 3600 *ticket.parking_space.parking.hour_price
         ticket.save()
         return ticket
+    
+class ReservationService:
+
+    def create(self, serializer, user):
+        new_reservation = Reservation.objects.create(
+                checkin = serializer.validated_data['checkin'],
+                checkout = serializer.validated_data['checkout'],
+                created_by = user,
+            )
+        return new_reservation

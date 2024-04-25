@@ -20,7 +20,7 @@ from rest_framework.routers import SimpleRouter, DefaultRouter
 from rest_framework.authtoken import views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from management.api.views import ParkingViewSet, ParkingSpaceViewSet, TicketViewSet, list_parking_spaces
+from management.api.views import ParkingViewSet, ParkingSpaceViewSet, TicketViewSet, list_parking_spaces, ReservationViewSet
 
 
 router = SimpleRouter()
@@ -28,6 +28,7 @@ router = SimpleRouter()
 router.register("api/parking", ParkingViewSet, basename="parking")
 router.register("api/parkingspaces", ParkingSpaceViewSet, basename="parking-spaces")
 router.register("api/ticket", TicketViewSet, basename="tickets")
+router.register("api/reservation", ReservationViewSet, basename="reservation")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

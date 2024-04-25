@@ -6,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError, NotAuthenticated, PermissionDenied
 
 from core.permissions import IsManager, IsEmployee
-from management.models import Parking, ParkingSpace, Ticket
-from management.api.serializers import ParkingSerializer, ParkingSpaceSerializer, TicketSerializer
-from management.services import ParkingService, ParkingSpaceService, TicketService
+from management.models import Parking, ParkingSpace, Ticket, Reservation
+from management.api.serializers import ParkingSerializer, ParkingSpaceSerializer, TicketSerializer, ReservationSerializer
+from management.services import ParkingService, ParkingSpaceService, TicketService, ReservationService
 
 class ParkingViewSet(ModelViewSet):
     serializer_class = ParkingSerializer
@@ -156,3 +156,41 @@ def list_parking_spaces(request, parking_id):
         parking_spaces_data.append(parking_space_data)
     
     return Response(parking_spaces_data)
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from management.models import Reservation
+from management.api.serializers import ReservationSerializer
+
+class ReservationViewSet(ModelViewSet):
+    serializer_class = ReservationSerializer
+    queryset = Reservation.objects.all()
+    permission_classes = [IsEmployee | IsManager]
+    service = ReservationService()
+
+    def create(self, request, *args, **kwargs):
+        serializer = ReservationSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            new_reservation = self.service.create(serializer, request.user)
+            serializer = ReservationSerializer(new_reservation)
+            return Response(
+                {"Info": "Parking space created!", "data": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+        except (ParseError, ValueError):
+            return Response(
+                {
+                    "Info": "Fail to create new parking space!"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except PermissionDenied:
+            return Response(
+                {"Info": "Permission Denied."}, status=status.HTTP_403_FORBIDDEN
+            )
+        except NotAuthenticated:
+            return Response(
+                {"Info": "Not Authenticated User."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
