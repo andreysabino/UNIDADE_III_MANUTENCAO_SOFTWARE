@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from management.models import Parking, ParkingSpace, Ticket
+from management.models import Parking, ParkingSpace, Ticket, Reservation
 
 # Create your tests here.
 
@@ -201,3 +201,25 @@ class TicketTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['data']['value'], self.parking.hour_price)
+
+class ReservationTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="admin", password="admin123")
+        managers_group, _ = Group.objects.get_or_create(name="Manager")
+        self.user.groups.add(managers_group)
+        self.token = Token.objects.create(user_id=self.user.id)
+        self.parking = Parking.objects.create(parking_name="New Parking", hour_price=4.0, created_by=self.user)
+        self.parking_space = ParkingSpace.objects.create(cod="A01", status=False, parking=self.parking, created_by=self.user)
+        self.reservation = Reservation.objects.create(
+            parking_space=self.parking_space,
+            checkin=datetime.now(),
+            checkout=datetime.now(),
+            quantHoras=datetime.now(),
+        )
+    
+    def test_list_reservations(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        url = reverse('reservation-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
