@@ -136,11 +136,6 @@ class TicketViewSet(ModelViewSet):
                 {"Info": "Permission Denied."}, status=status.HTTP_403_FORBIDDEN
             )
         
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from management.models import ParkingSpace
-from management.api.serializers import ParkingSpaceSerializer
-
 @api_view(['GET'])
 def list_parking_spaces(request, parking_id):
     parking_spaces = ParkingSpace.objects.filter(parking_id=parking_id)
@@ -156,11 +151,6 @@ def list_parking_spaces(request, parking_id):
         parking_spaces_data.append(parking_space_data)
     
     return Response(parking_spaces_data)
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from management.models import Reservation
-from management.api.serializers import ReservationSerializer
 
 class ReservationViewSet(ModelViewSet):
     serializer_class = ReservationSerializer
