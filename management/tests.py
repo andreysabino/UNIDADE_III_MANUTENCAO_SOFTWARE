@@ -223,3 +223,21 @@ class ReservationTestCase(APITestCase):
         url = reverse('reservation-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class ListParkingSpacesTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="admin", password="admin123")
+        managers_group, _ = Group.objects.get_or_create(name="Manager")
+        self.user.groups.add(managers_group)
+        self.token = Token.objects.create(user_id=self.user.id)
+        self.parking = Parking.objects.create(parking_name="New Parking", hour_price=4.0, created_by=self.user)
+        self.parking_space = ParkingSpace.objects.create(cod="A01", status=False, parking=self.parking, created_by=self.user)
+    
+    def test_list_parking_spaces(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        url = reverse('list_parking_spaces', kwargs={'parking_id': self.parking.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)  # Verifica se a resposta contém dados
+        self.assertEqual(response.data[0]['id'], self.parking_space.id)  # Verifica se o espaço de estacionamento está na resposta
